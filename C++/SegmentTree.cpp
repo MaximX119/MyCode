@@ -5,12 +5,12 @@ using namespace std;
 
 typedef long long my_type;
 
-const my_type e0 = -2e9;
+const my_type e0 = 0;
 const my_type MAXN = (1 << 17);
 
 my_type f(my_type a, my_type b)
 {
-    return max(a, b);
+    return a + b;
 }
 
 struct SegmentTree
@@ -87,19 +87,21 @@ struct SegmentTree
             return -1;
         if (l + 1 == r)
             return l;
-        if (ar[2 * v] >= l)
+        if (ar[2 * v] >= k)
             return index(v * 2, l, (l + r) / 2, k);
         return index(2 * v + 1, (l + r) / 2, r, k - ar[v * 2]);
     }
 
 };
+
 SegmentTree t;
+
 int main()
 {
     cin.tie(0);
     ios_base::sync_with_stdio(0);
 
 
-  
+    
     return 0;
 }
