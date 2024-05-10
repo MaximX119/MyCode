@@ -19,7 +19,6 @@ struct Treap
     }
 };
 
-
 int GetSize(Treap* a)
 {
     return (a != nullptr ? a->size : 0);
