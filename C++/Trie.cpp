@@ -6,18 +6,22 @@ using namespace std;
 
 const int K = 26;
 
-struct Trie
+class Trie
 {
+private:
     Trie* next[K];
     Trie* link = nullptr;
     Trie* parent = nullptr;
     char c;
     int size = 1;
     bool end = false;
+
+public:
     Trie() {
         fill(next, next + K, nullptr);
         size = 1;
     }
+
     void add(const string& s, int pos)
     {
         if (pos == (int)s.size())
@@ -55,7 +59,7 @@ signed main()
 {
     ios_base::sync_with_stdio(false);
     cin.tie(nullptr); cout.tie(nullptr);
-    
+
     Trie* root = new Trie();
 
     return 0;
