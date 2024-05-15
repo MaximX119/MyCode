@@ -13,22 +13,20 @@ my_type f(my_type a, my_type b)
     return a + b;
 }
 
-struct SegmentTree
+class SegmentTree
 {
-    my_type ar[MAXN * 2];
+private:
     long long push[MAXN * 2];
-    SegmentTree() {
-        fill(ar, ar + (MAXN * 2), e0);
-        fill(push, push + (MAXN * 2), 0);
-    }
-    void update(int i, my_type val)
+
+    void push_me(int v, int l, int r)
     {
-        i += MAXN;
-        ar[i] = val;
-        for (i /= 2; i > 0; i /= 2)
+        ar[v] += push[v];
+        if (l + 1 != r)
         {
-            ar[i] = f(ar[2 * i], ar[2 * i + 1]);
+            push[v * 2] += push[v];
+            push[v * 2 + 1] += push[v];
         }
+        push[v] = 0;
     }
 
     my_type get(int v, int l, int r, int seg_l, int seg_r)
@@ -43,25 +41,6 @@ struct SegmentTree
         push_me(v * 2 + 1, (l + r) / 2, r);
         return f(get(v * 2, l, (l + r) / 2, seg_l, seg_r),
             get(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r));
-    }
-
-    void build()
-    {
-        for (int i = MAXN - 1; i > 0; --i)
-        {
-            ar[i] = f(ar[2 * i], ar[2 * i + 1]);
-        }
-    }
-
-    void push_me(int v, int l, int r)
-    {
-        ar[v] += push[v];
-        if (l + 1 != r)
-        {
-            push[v * 2] += push[v];
-            push[v * 2 + 1] += push[v];
-        }
-        push[v] = 0;
     }
 
     void add(int v, int l, int r, int seg_l, int seg_r, int x)
@@ -92,16 +71,56 @@ struct SegmentTree
         return index(2 * v + 1, (l + r) / 2, r, k - ar[v * 2]);
     }
 
+public:
+    my_type ar[MAXN * 2];
+
+    SegmentTree() {
+        fill(ar, ar + (MAXN * 2), e0);
+        fill(push, push + (MAXN * 2), 0);
+    }
+
+    void update(int i, my_type val)
+    {
+        i += MAXN;
+        ar[i] = val;
+        for (i /= 2; i > 0; i /= 2)
+        {
+            ar[i] = f(ar[2 * i], ar[2 * i + 1]);
+        }
+    }
+
+    my_type get(int l, int r)
+    {
+        return get(1, 0, MAXN, l, r);
+    }
+
+    void build()
+    {
+        for (int i = MAXN - 1; i > 0; --i)
+        {
+            ar[i] = f(ar[2 * i], ar[2 * i + 1]);
+        }
+    }
+
+    void add(int l, int r, int x)
+    {
+        add(1, 0, MAXN, l, r, x);
+    }
+
+    int index(int l, int r, int k)
+    {
+        return index(1, l, r, k);
+    }
 };
 
 SegmentTree t;
 
 int main()
 {
-    cin.tie(0);
-    ios_base::sync_with_stdio(0);
+    ios_base::sync_with_stdio(false);
+    cin.tie(nullptr); cout.tie(nullptr);
 
 
-    
+
     return 0;
 }
