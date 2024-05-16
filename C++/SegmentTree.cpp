@@ -6,14 +6,18 @@ typedef long long my_type;
 
 const my_type MAXN = (1 << 17);
 
-my_type sum(my_type a, my_type b)
+auto sum(auto a, auto b)
 {
     return a + b;
 }
 
-int Min(int a, int b)
+auto Min(auto a, auto b)
 {
-    return min(a, b);
+    if (a < b)
+    {
+        return a;
+    }
+    return b;
 }
 
 template <typename Type>
