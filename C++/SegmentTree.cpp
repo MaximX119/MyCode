@@ -1,22 +1,28 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
 typedef long long my_type;
 
-const my_type e0 = 0;
 const my_type MAXN = (1 << 17);
 
-my_type f(my_type a, my_type b)
+my_type sum(my_type a, my_type b)
 {
     return a + b;
 }
 
+int Min(int a, int b)
+{
+    return min(a, b);
+}
+
+template <typename Type>
 class SegmentTree
 {
 private:
+    Type e0;
     long long push[MAXN * 2];
+    Type (*f)(Type a, Type b);
 
     void push_me(int v, int l, int r)
     {
@@ -29,7 +35,7 @@ private:
         push[v] = 0;
     }
 
-    my_type get(int v, int l, int r, int seg_l, int seg_r)
+    Type get(int v, int l, int r, int seg_l, int seg_r)
     {
         if (r <= seg_l || l >= seg_r) {
             return e0;
@@ -71,15 +77,19 @@ private:
         return index(2 * v + 1, (l + r) / 2, r, k - ar[v * 2]);
     }
 
-public:
-    my_type ar[MAXN * 2];
 
-    SegmentTree() {
+
+public:
+    Type ar[MAXN * 2];
+
+    SegmentTree(Type (*func)(Type a, Type b), Type e) {
+        e0 = e;
+        f = func;
         fill(ar, ar + (MAXN * 2), e0);
         fill(push, push + (MAXN * 2), 0);
     }
 
-    void update(int i, my_type val)
+    void update(int i, Type val)
     {
         i += MAXN;
         ar[i] = val;
@@ -89,7 +99,7 @@ public:
         }
     }
 
-    my_type get(int l, int r)
+    Type get(int l, int r)
     {
         return get(1, 0, MAXN, l, r);
     }
@@ -113,14 +123,20 @@ public:
     }
 };
 
-SegmentTree t;
+SegmentTree<long long> SumTree(sum, 0);
+SegmentTree<int> MinTree(Min, 2147483647);
 
 int main()
 {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr); cout.tie(nullptr);
+    for(int i = 0; i < MAXN; i++)
+    {
+        SumTree.ar[i + MAXN] = i;
+        MinTree.ar[i + MAXN] = i;
+    }
+    SumTree.build();
+    MinTree.build();
 
-
+    cout << SumTree.get(19, 37) << ' ' << MinTree.get(37, 42) << '\n';
 
     return 0;
 }
