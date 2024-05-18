@@ -81,8 +81,6 @@ private:
         return index(2 * v + 1, (l + r) / 2, r, k - ar[v * 2]);
     }
 
-
-
 public:
     Type ar[MAXN * 2];
 
