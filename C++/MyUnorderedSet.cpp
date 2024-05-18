@@ -3,32 +3,44 @@
 using namespace std;
 
 const int MAXN = 1e6;
-typedef int My_type;
 
+int IntHash(int& a)
+{
+    return a % MAXN;
+}
+
+int StringHash(string& s)
+{
+    int v = 0;
+    for (char c : s)
+    {
+        v = (v * 37 + (int)(c - 'a') + 1) % MAXN;
+    }
+    return v;
+}
+
+template <typename Type>
 class U_set
 {
     private:
         int set[MAXN];
-
-        int hash(My_type a)
-        {
-            return a % MAXN;
-        }
+        int (*hash)(Type& a);
     public:
 
         int size = 0;
 
-        U_set() {
+        U_set(int (*h)(Type& a)) {
+            hash = h;
             fill(set, set + MAXN, 0);
         }
 
-        void insert(My_type a)
+        void insert(Type a)
         {
             set[hash(a)]++;
             size++;
         }
 
-        void erase(My_type a)
+        void erase(Type a)
         {
             if (set[hash(a)] > 0)
             {
@@ -37,7 +49,7 @@ class U_set
             }
         }
 
-        int count(My_type a)
+        int count(Type a)
         {
             return set[hash(a)];
         }
@@ -136,7 +148,11 @@ class U_set
 
 int main()
 {
+    U_set<int> int_us(IntHash);
+    U_set<string> str_us(StringHash);
     
-
+    int_us.insert(1901);
+    str_us.insert("abacaba");
+    
     return 0;
 }
