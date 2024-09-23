@@ -5,7 +5,7 @@ uses
 
 const
   S = 6; // Кол-во щупалец
-  N = 37;  // Кол-во звеньев в каждом из них
+  N = 60;  // Кол-во звеньев в каждом из них
   W = 1; //Ширина щупалец
 
 var
@@ -13,7 +13,7 @@ var
   x, y: Real;
   tx, ty: Real;
   k, d: Real;
-  r,g,b,f:byte;
+  r, g, b, f: byte;
   
   // Углы поворота звеньев относительно друг-друга
   a: array [1..N] of Real;
@@ -23,18 +23,18 @@ var
 
 procedure KeyDown(Key: integer);
 begin
-   case Key of
-  VK_Left:  k := 3 * pi / 2;
-  VK_Right: k := pi / 2;
-  VK_Up: k := 0;
-   end;
+  case Key of
+    VK_Left: k := 3 * pi / 2;
+    VK_Right: k := pi / 2;
+    VK_Up: k := 0;
+  end;
 end;
 
 
 begin
   Pen.Width := W;
   SetWindowSize(320, 320);
-  //maximizewindow;
+  maximizewindow;
   SetWindowTitle('Щупальца');
   SETBRUSHCOLOR(CLBLACK);
   OnKeyDown := KeyDown;
@@ -65,7 +65,7 @@ begin
     
     // Поворот всех щупалец
     a[1] := a[1] + sin(k) / 15;
-
+    
     // Интерполяция углов между щупальцами
     for i := 2 to N do 
       a[i] := a[i] + (a[i - 1] - a[i]) * 0.1;
@@ -77,31 +77,35 @@ begin
       y := 0.5 * Window.Height;
       for i := 2 to N do 
       begin
-        SetPenColor(Color.FromArgb(r,(trunc(255-255*i/n)+g)mod 255,255-b));
+        SetPenColor(Color.FromArgb(r, (trunc(255 - 255 * i / n) + g) mod 255, 255 - b));
         
         // Немного школьной тригонометрии :)           
         tx := x + cos(j * d + a[i]) * len;
         ty := y + sin(j * d + a[i]) * len;
-        {case h of
-        0: Line(trunc(x), trunc(y), trunc(tx), trunc(ty));
-        1: circle(trunc(x), trunc(y), 1);
-        2: Rectangle(trunc(x), trunc(y), trunc(tx), trunc(ty));
-        end;}
-        Line(trunc(x), trunc(y), trunc(tx), trunc(ty));
+        case h of
+          0: Line(trunc(x), trunc(y), trunc(tx), trunc(ty));
+          1: circle(trunc(x), trunc(y), 1);
+          2:
+            begin
+              Line(trunc(x), trunc(y), trunc(tx), trunc(ty));
+              Rectangle(trunc(x), trunc(y), trunc(tx), trunc(ty));
+            end;
+        end;//}
+        //Line(trunc(x), trunc(y), trunc(tx), trunc(ty));
         //circle(trunc(x), trunc(y), 1);
-        Rectangle(trunc(x), trunc(y), trunc(tx), trunc(ty));
-        x  := tx;
-        y  := ty;
+        //Rectangle(trunc(x), trunc(y), trunc(tx), trunc(ty));
+        x := tx;
+        y := ty;
       end;
     end;
     Redraw(); //Перерисуем изображение
-
+    
     k1 += 1;
-    SetWindowTitle('Щупальца( Средн. FPS ' + Format('{0,5:f2}',k1/Milliseconds*1000)+')');
-    r+=random(0,2);
-    g+=random(0,2);
-    b+=random(0,2);
-    f+=random(0,4);
+    SetWindowTitle('Щупальца( Средн. FPS ' + Format('{0,5:f2}', k1 / Milliseconds * 1000) + ')');
+    r += random(0, 2);
+    g += random(0, 2);
+    b += random(0, 2);
+    f += random(0, 4);
     //sleep(5);
   until false;
   
