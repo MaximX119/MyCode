@@ -3,8 +3,6 @@
 
 using namespace std;
 
-const int MAXN = (1 << 17);
-
 auto Max(auto a, auto b)
 {
     if (a > b)
@@ -16,36 +14,43 @@ template <typename Type>
 class SegmentTree
 {
 private:
+    Type e0;
+    int MAXN;
+    vector<Type> ar;
+    Type (*f)(Type a, Type b);
+
     Type get(int v, int l, int r, int seg_l, int seg_r)
     {
-        if (r <= seg_l || l >= seg_r) {
+        if (r <= seg_l || l >= seg_r)
             return e0;
-        }
-        if (seg_l <= l && r <= seg_r) {
+
+        if (seg_l <= l && r <= seg_r)
             return ar[v];
-        }
+
         return f(get(v * 2, l, (l + r) / 2, seg_l, seg_r),
-            get(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r));
+                 get(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r));
     }
 
 public:
-    Type e0;
-    Type ar[MAXN * 2];
-    Type (*f)(Type a, Type b);
 
     SegmentTree() {}
-
-    SegmentTree(Type (*func)(Type a, Type b), Type e) {
+    SegmentTree(int n, Type (*func)(Type a, Type b), Type e) {
         e0 = e;
         f = func;
-        fill(ar, ar + (MAXN * 2), e0);
+        for (MAXN = 1; MAXN < n; MAXN <<= 1);
+        ar.assign(MAXN * 2, e0);
+    }
+
+    void change(int i, Type val)
+    {
+        ar[i + MAXN] = val;
     }
 
     void update(int i, Type val)
     {
         i += MAXN;
         ar[i] = val;
-        for (i /= 2; i > 0; i /= 2)
+        for (i /= 2; i > 0; i >>= 1)
         {
             ar[i] = f(ar[2 * i], ar[2 * i + 1]);
         }
@@ -98,7 +103,7 @@ private:
     void second_init_dfs(int v, int &timee, vector<vector<int>> &graph, vector<Type> &weight)
     {
         tin[v] = timee;
-        segtree.ar[MAXN + timee++] = weight[v];
+        segtree.change(timee++, weight[v]);
         for (int u : graph[v])
         {
             if (u != parent[v])
@@ -123,9 +128,7 @@ public:
         height[0] = 0;
         e0 = e;
 
-        segtree.e0 = e;
-        segtree.f = func;
-        fill(segtree.ar, segtree.ar + (MAXN * 2), e0);
+        segtree = SegmentTree<Type>(n, func, e0);
 
         first_init_dfs(0, graph);
         int timee = 0;
@@ -156,7 +159,7 @@ signed main()
 {
     vector<int> weight = {7, 8, 6, 5};
     vector<vector<int>> graph = {{1, 2}, {}, {3}, {}};
-  
+
     HeavyLightDecomposition<int> my_hld(Max, -100, graph, weight);
     cout << my_hld.get(0, 3) << '\n'; // 7
     cout << my_hld.get(2, 3) << '\n'; // 6
