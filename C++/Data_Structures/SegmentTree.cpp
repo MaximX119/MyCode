@@ -1,10 +1,7 @@
 #include <iostream>
+#include <vector>
 
 using namespace std;
-
-typedef long long my_type;
-
-const my_type MAXN = (1 << 17);
 
 auto sum(auto a, auto b)
 {
@@ -14,9 +11,7 @@ auto sum(auto a, auto b)
 auto Min(auto a, auto b)
 {
     if (a < b)
-    {
         return a;
-    }
     return b;
 }
 
@@ -25,7 +20,8 @@ class SegmentTree
 {
 private:
     Type e0;
-    long long push[MAXN * 2];
+    int MAXN;
+    vector<Type> ar, push;
     Type (*f)(Type a, Type b);
 
     void push_me(int v, int l, int r)
@@ -41,61 +37,55 @@ private:
 
     Type get(int v, int l, int r, int seg_l, int seg_r)
     {
-        if (r <= seg_l || l >= seg_r) {
+        if (r <= seg_l || l >= seg_r)
             return e0;
-        }
-        if (seg_l <= l && r <= seg_r) {
+
+        if (seg_l <= l && r <= seg_r)
             return ar[v];
-        }
+
         push_me(v * 2, l, (l + r) / 2);
         push_me(v * 2 + 1, (l + r) / 2, r);
         return f(get(v * 2, l, (l + r) / 2, seg_l, seg_r),
-            get(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r));
+                 get(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r));
     }
 
-    void add(int v, int l, int r, int seg_l, int seg_r, int x)
+    void add(int v, int l, int r, int seg_l, int seg_r, Type val)
     {
         if (seg_r <= l || r <= seg_l)
             return;
         push_me(v, l, r);
         if (seg_l <= l && r <= seg_r)
         {
-            push[v] = x;
+            push[v] = val;
             return;
         }
-        add(v * 2, l, (l + r) / 2, seg_l, seg_r, x);
-        add(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r, x);
+        add(v * 2, l, (l + r) / 2, seg_l, seg_r, val);
+        add(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r, val);
         push_me(v * 2, l, (l + r) / 2);
         push_me(v * 2 + 1, (l + r) / 2, r);
         ar[v] = f(ar[v * 2], ar[v * 2 + 1]);
     }
 
-    int index(int v, int l, int r, int k)
-    {
-        if (ar[v] < k)
-            return -1;
-        if (l + 1 == r)
-            return l;
-        if (ar[2 * v] >= k)
-            return index(v * 2, l, (l + r) / 2, k);
-        return index(2 * v + 1, (l + r) / 2, r, k - ar[v * 2]);
-    }
-
 public:
-    Type ar[MAXN * 2];
 
-    SegmentTree(Type (*func)(Type a, Type b), Type e) {
+    SegmentTree(int n, Type (*func)(Type a, Type b), Type e) {
         e0 = e;
         f = func;
-        fill(ar, ar + (MAXN * 2), e0);
-        fill(push, push + (MAXN * 2), 0);
+        for (MAXN = 1; MAXN < n; MAXN <<= 1);
+        ar.assign(MAXN * 2, e0);
+        push.assign(MAXN * 2, 0);
+    }
+
+    void change(int i, Type val)
+    {
+        ar[i + MAXN] = val;
     }
 
     void update(int i, Type val)
     {
         i += MAXN;
         ar[i] = val;
-        for (i /= 2; i > 0; i /= 2)
+        for (i /= 2; i > 0; i >>= 1)
         {
             ar[i] = f(ar[2 * i], ar[2 * i + 1]);
         }
@@ -114,31 +104,31 @@ public:
         }
     }
 
-    void add(int l, int r, int x)
+    void add(int l, int r, Type val)
     {
-        add(1, 0, MAXN, l, r, x);
-    }
-
-    int index(int l, int r, int k)
-    {
-        return index(1, l, r, k);
+        add(1, 0, MAXN, l, r, val);
     }
 };
 
-SegmentTree<long long> SumTree(sum, 0);
-SegmentTree<int> MinTree(Min, 2147483647);
+SegmentTree<double> SumTree(19, sum, 0);
+SegmentTree<int> MinTree(37, Min, 2147483647);
 
 int main()
 {
-    for(int i = 0; i < MAXN; i++)
-    {
-        SumTree.ar[i + MAXN] = i;
-        MinTree.ar[i + MAXN] = i;
-    }
+    for (int i = 0; i < 19; i++)
+        SumTree.change(i, (double)i * (double)i + 0.1);
     SumTree.build();
+
+    for (int i = 0; i < 37; i++)
+        MinTree.change(i, i);
     MinTree.build();
 
-    cout << SumTree.get(19, 37) << ' ' << MinTree.get(37, 42) << '\n';
+    cout << SumTree.get(7, 19) << ' ' << MinTree.get(25, 36) << '\n'; //2019.2 25
+
+    SumTree.update(10, 101.01);
+    MinTree.add(26, 36, -3);
+
+    cout << SumTree.get(7, 19) << ' ' << MinTree.get(25, 36) << '\n'; //2020.11 23
 
     return 0;
 }
