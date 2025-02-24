@@ -17,7 +17,7 @@ private:
     Type e0;
     int MAXN;
     vector<Type> ar;
-    Type (*f)(Type a, Type b);
+    Type (*func)(Type a, Type b);
 
     Type get(int v, int l, int r, int seg_l, int seg_r)
     {
@@ -27,16 +27,16 @@ private:
         if (seg_l <= l && r <= seg_r)
             return ar[v];
 
-        return f(get(v * 2, l, (l + r) / 2, seg_l, seg_r),
+        return func(get(v * 2, l, (l + r) / 2, seg_l, seg_r),
                  get(v * 2 + 1, (l + r) / 2, r, seg_l, seg_r));
     }
 
 public:
 
     SegmentTree() {}
-    SegmentTree(int n, Type (*func)(Type a, Type b), Type e) {
+    SegmentTree(int n, Type (*f)(Type a, Type b), Type e) {
         e0 = e;
-        f = func;
+        func = f;
         for (MAXN = 1; MAXN < n; MAXN <<= 1);
         ar.assign(MAXN * 2, e0);
     }
@@ -52,7 +52,7 @@ public:
         ar[i] = val;
         for (i /= 2; i > 0; i >>= 1)
         {
-            ar[i] = f(ar[2 * i], ar[2 * i + 1]);
+            ar[i] = func(ar[2 * i], ar[2 * i + 1]);
         }
     }
 
@@ -65,7 +65,7 @@ public:
     {
         for (int i = MAXN - 1; i > 0; --i)
         {
-            ar[i] = f(ar[2 * i], ar[2 * i + 1]);
+            ar[i] = func(ar[2 * i], ar[2 * i + 1]);
         }
     }
 };
@@ -76,7 +76,7 @@ class HeavyLightDecomposition
 private:
 
     Type e0;
-    Type (*f)(Type a, Type b);
+    Type (*func)(Type a, Type b);
     SegmentTree<Type> segtree;
     vector<int> size, parent, head, height, tin;
 
@@ -118,7 +118,7 @@ private:
     }
 public:
 
-    HeavyLightDecomposition(Type (*func)(Type a, Type b), Type e, vector<vector<int>> &graph, vector<Type> &weight)
+    HeavyLightDecomposition(Type (*f)(Type a, Type b), Type e, vector<vector<int>> &graph, vector<Type> &weight)
     {
         int n = weight.size();
         size.resize(n); parent.resize(n);
@@ -127,8 +127,9 @@ public:
         parent[0] = 0;
         height[0] = 0;
         e0 = e;
+        func = f;
 
-        segtree = SegmentTree<Type>(n, func, e0);
+        segtree = SegmentTree<Type>(n, f, e0);
 
         first_init_dfs(0, graph);
         int timee = 0;
@@ -148,17 +149,31 @@ public:
         {
             if (height[head[v]] < height[head[u]])
                 swap(v, u);
-            ans = max(ans, segtree.get(tin[head[v]], tin[v] + 1));
+            ans = func(ans, segtree.get(tin[head[v]], tin[v] + 1));
             v = parent[head[v]];
         }
-        return max(ans, segtree.get(min(tin[u], tin[v]), max(tin[u], tin[v]) + 1));
+        return func(ans, segtree.get(min(tin[u], tin[v]), max(tin[u], tin[v]) + 1));
+    }
+
+    int lca(int v, int u)
+    {
+        while (head[v] != head[u])
+        {
+            if (height[head[v]] < height[head[u]])
+                swap(v, u);
+            v = parent[head[v]];
+        }
+
+        if (height[v] < height[u])
+            return v;
+        return u;
     }
 };
 
 signed main()
 {
-    vector<int> weight = {7, 8, 6, 5};
     vector<vector<int>> graph = {{1, 2}, {}, {3}, {}};
+    vector<int> weight = {7, 8, 6, 5};
 
     HeavyLightDecomposition<int> my_hld(Max, -100, graph, weight);
     cout << my_hld.get(0, 3) << '\n'; // 7
