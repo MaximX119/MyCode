@@ -3,9 +3,9 @@
 
 using namespace std;
 
-const int inf = 1e9;
+const int MAX_FLOW = 1e6;
 
-struct Edge { int to, flow, cost; };
+struct Edge { int to, flow, capacity; };
 struct Graph
 {
     int n, S, T;
@@ -16,10 +16,10 @@ struct Graph
         graph.resize(n);
     }
 
-    void add_direct_edge(int x, int y, int cost)
+    void add_direct_edge(int x, int y, int capacity)
     {
         graph[x].push_back(edges.size());
-        edges.push_back(Edge{y, 0, cost});
+        edges.push_back(Edge{y, 0, capacity});
         graph[y].push_back(edges.size());
         edges.push_back(Edge{x, 0, 0});
     }
@@ -33,7 +33,7 @@ struct Graph
         used[v] = true;
         for (int e : graph[v])
         {
-            int residual = min(flow_limit, edges[e].cost - edges[e].flow);
+            int residual = min(flow_limit, edges[e].capacity - edges[e].flow);
             if (residual > 0 && try_aurgment(edges[e].to, used, residual))
             {
                 flow_limit = residual;
@@ -44,6 +44,7 @@ struct Graph
         }
         return false;
     }
+
     int max_flow()
     {
         vector<char> used(n);
@@ -51,17 +52,36 @@ struct Graph
         while (true)
         {
             fill(used.begin(), used.end(), 0);
-            int flow_limit = inf;
+            int flow_limit = MAX_FLOW;
             if (!try_aurgment(S, used, flow_limit))
                 break;
             total_flow += flow_limit;
         }
         return total_flow;
     }
+
     void clear_flow()
     {
-        for (Edge& e : Edges)
-            flow[e] = 0;
+        for (Edge& e : edges)
+            e.flow = 0;
     }
 };
 
+signed main()
+{
+    int n, S, T, m;
+    cin >> n;
+    Graph my_graph(n, S, T);
+
+    cin >> m;
+    for (int i = 0; i < m; i++)
+    {
+        int from, to, capacity;
+        cin >> from >> to >> capacity;
+        my_graph.add_direct_edge(from, to, capacity);
+    }
+
+    cout << my_graph.max_flow();
+
+    return 0;
+}
