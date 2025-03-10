@@ -15,7 +15,7 @@ public:
     vector<vector<int>> graph;
 
     Graph(int n, int S, int T): n(n), S(S), T(T) {
-        graph.resize(n);
+        graph.resize(n + 1);
     }
 
     void add_direct_edge(int from, int to, int capacity)
