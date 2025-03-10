@@ -20,9 +20,9 @@ public:
 
     void add_direct_edge(int from, int to, int capacity)
     {
-        graph[x].push_back(edges.size());
+        graph[from].push_back(edges.size());
         edges.push_back(Edge{from, to, 0, capacity});
-        graph[y].push_back(edges.size());
+        graph[to].push_back(edges.size());
         edges.push_back(Edge{to, from, 0, 0});
     }
 
