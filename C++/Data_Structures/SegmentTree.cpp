@@ -27,6 +27,7 @@ private:
     void push_me(int v, int l, int r)
     {
         ar[v] += push[v];
+        //ar[v] += push[v] * (r - l); // for sum
         if (l + 1 != r)
         {
             push[v * 2] += push[v];
@@ -39,7 +40,7 @@ private:
     {
         if (r <= seg_l || l >= seg_r)
             return e0;
-
+        push_me(v, l, r);
         if (seg_l <= l && r <= seg_r)
             return ar[v];
 
