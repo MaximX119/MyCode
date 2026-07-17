@@ -32,3 +32,62 @@ int main()
 
     return 0;
 }
+
+class Utility {
+public:
+    static std::string TrimString(const std::string& str) {
+        size_t first = str.find_first_not_of("\r\n\t ");
+        if (first == std::string::npos) {
+            return "";
+        }
+        size_t last = str.find_last_not_of("\r\n\t ");
+        
+        return str.substr(first, last - first + 1);
+    }
+
+
+    static std::string_view TrimString(std::string_view str) {
+        size_t first = str.find_first_not_of("\r\n\t ");
+        if (first == std::string_view::npos) {
+            return "";
+        }
+        size_t last = str.find_last_not_of("\r\n\t ");
+
+        return str.substr(first, last - first + 1);
+    }
+
+    inline static void StrCpy(char* dest, const size_t cnt, std::string_view src) noexcept
+    {
+        if (cnt > 0)
+        {
+            const size_t copy_len = std::min(src.size(), cnt - 1);
+            if (copy_len > 0)
+                std::memcpy(dest, src.data(), copy_len);
+            
+            dest[copy_len] = '\0';
+        }
+    }
+
+    template <std::size_t N>
+    inline static void StrCpy(char (&dest)[N], std::string_view src) noexcept
+    {
+        StrCpy(dest, N, src);
+    }
+
+    template <typename... Args>
+    static std::string BuildStr(const Args&... args)
+    {
+        std::ostringstream oss;
+        (oss << ... << args);
+        return oss.str();
+    }
+
+    template <typename... Args>
+    static std::string_view BuildStrView(std::ostringstream& oss, const Args&... args)
+    {
+        oss.str(""); oss.clear();
+        oss << std::dec;
+        (oss << ... << args);
+        return std::string_view(oss.rdbuf()->str().data(), oss.rdbuf()->str().size());
+    }
+};
